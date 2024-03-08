@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: url('https://www.thisiscolossal.com/wp-content/uploads/2018/08/Isopoly_01.gif') no-repeat center center fixed;
+      background-size: cover;
+      box-sizing: border-box;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .input-group {
+      margin-bottom: 10px;
+    }
+    .response {
+      width: 100%;
+      height: 200px;
+      resize: none;
+      margin-bottom: 10px;
+      visibility: visible;
+    }
+    .copy-button, #submit {
+      padding: 8px 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+      display: block;
+      margin: 0 auto;
+    }
+    .loading {
+      color: #999;
+      font-style: italic;
+      margin-top: 10px;
+      visibility: visible;
+    }
+    .login-header, .response-header {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      visibility: visible;
+    }
+    .login-input {
+      width: 90%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+    .login-button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .response-container {
+      background-color: #f5f6f7;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-top: 20px;
+    }
+    #ping {
+      text-align: center;
+      visibility: visible;
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="login-header">Appstate</div>
+    <p>Get appstate through User ID & Password</p>
+    <div class="input-group">
+      <label for="uid"></label>
+      <input type="text" id="uid" class="login-input" placeholder="Enter UID" />
+    </div>
+    <div class="input-group">
+      <label for="password"></label>
+      <input type="password" id="password" class="login-input" placeholder="Enter Password" />
+    </div>
+    <button onclick="getResponse()" id="submit">Submit</button>
+    <div class="loading" id="loading"></div>
+  </div>
+
+  <div class="response-container">
+    <div class="response-header">here's your appstate base in your uid and password</div>
+    <textarea class="response" id="response" readonly></textarea>
+    <button onclick="copyToClipboard()" class="copy-button">Copy Appstate</button>
+    <div id="ping"></div>
+  </div>
+
+  <script>
+    function updatePing() {
+      const start = performance.now();
+      const pingText = document.querySelector('#ping');
+
+      fetch('/')
+        .then(() => {
+          const end = performance.now();
+          const time = end - start;
+          pingText.textContent = `Ping: ${time.toFixed(2)} ms`;
+        })
+        .catch(error => console.error(error));
+    }
+
+    setInterval(updatePing, 1000);
+    updatePing();
+
+    document.addEventListener('contextmenu', (event) => {
+      event.preventDefault();
+    });
+
+    function copyToClipboard() {
+      const responseTextArea = document.getElementById('response');
+      responseTextArea.select();
+      responseTextArea.setSelectionRange(0, 99999);
+
+      document.execCommand('copy');
+      alert('Response copied to clipboard!');
+    }
+
+    function getResponse() {
+      const uid = document.getElementById('uid').value;
+      const password = document.getElementById('password').value;
+      const url = `https://e61f5122-42ef-4614-a9be-e67ff99b1af8-00-2ce1zgipl8vgv.sisko.replit.dev:4200/api/getappstate?uid=${uid}&password=${password}`;
+
+      document.getElementById("loading").innerText = "Loading...";
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('response').value = JSON.stringify(data, null, 2);
+          document.getElementById("loading").innerText = "";
+        })
+        .catch(error => {
+          document.getElementById('response').value = 'Error occurred: ' + error;
+          document.getElementById("loading").innerText = "";
+        });
+    }
+  </script>
+</body>
+</html>
